@@ -18,6 +18,7 @@ let currentPage = 1;
 let currentQuery = '';
 let totalHits = 0;
 let lightbox = null;
+let isLoading = false;
 
 // SimpleLightbox başlatma
 function initializeLightbox() {
@@ -33,6 +34,9 @@ function initializeLightbox() {
 
 // API'den resim arama fonksiyonu
 async function searchImages(query, page) {
+  // Yapay gecikme ekle (1.5 saniye)
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
   const params = new URLSearchParams({
     key: API_KEY,
     q: query,
@@ -80,7 +84,8 @@ function createGalleryMarkup(images) {
 
 // Yükleme durumunu yönetme
 function toggleLoader(show) {
-  loader.classList.toggle('is-hidden', !show);
+  loader.style.display = show ? 'block' : 'none';
+  isLoading = show;
 }
 
 // Load More butonunu yönetme
@@ -123,8 +128,9 @@ function smoothScroll() {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const searchQuery = e.target.elements.searchQuery.value.trim();
+  const searchButton = e.target.querySelector('button');
   
-  if (!searchQuery) return;
+  if (!searchQuery || isLoading) return;
 
   // Yeni arama için sayfa ve galeriyi sıfırla
   currentPage = 1;
@@ -133,13 +139,19 @@ form.addEventListener('submit', async (e) => {
   clearEndMessage();
   toggleLoadMoreButton(false);
   toggleLoader(true);
+  
+  // Buton yükleme durumunu ayarla
+  const originalButtonText = searchButton.textContent;
+  searchButton.innerHTML = '<span class="spinner"></span><span>Resimler Yükleniyor...</span>';
+  searchButton.disabled = true;
+  searchButton.classList.add('loading');
 
   try {
     const data = await searchImages(searchQuery, currentPage);
     totalHits = data.totalHits;
     
     if (data.hits.length === 0) {
-      alert('Sorry, there are no images matching your search query. Please try again.');
+      gallery.innerHTML = '<p class="no-results">Sorry, there are no images matching your search query. Please try again.</p>';
       return;
     }
 
@@ -149,10 +161,6 @@ form.addEventListener('submit', async (e) => {
     // Toplam sayfa sayısını kontrol et
     const totalPages = Math.ceil(totalHits / PER_PAGE);
     toggleLoadMoreButton(currentPage < totalPages);
-    
-    if (currentPage === 1) {
-      alert(`Hooray! We found ${totalHits} images.`);
-    }
 
     // Eğer ilk sayfada tüm sonuçlar gösterildiyse
     if (data.hits.length === totalHits) {
@@ -160,14 +168,20 @@ form.addEventListener('submit', async (e) => {
       showEndMessage();
     }
   } catch (error) {
-    alert('An error occurred while fetching images. Please try again.');
+    gallery.innerHTML = '<p class="error-message">An error occurred while fetching images. Please try again.</p>';
   } finally {
     toggleLoader(false);
+    // Buton durumunu sıfırla
+    searchButton.innerHTML = originalButtonText;
+    searchButton.disabled = false;
+    searchButton.classList.remove('loading');
   }
 });
 
 // Load More butonu tıklama işlemi
 loadMoreBtn.addEventListener('click', async () => {
+  if (isLoading) return;
+  
   currentPage += 1;
   toggleLoadMoreButton(false);
   toggleLoader(true);
@@ -189,7 +203,10 @@ loadMoreBtn.addEventListener('click', async () => {
     // Yeni resimler yüklendikten sonra düzgün kaydırma
     smoothScroll();
   } catch (error) {
-    alert('An error occurred while fetching more images. Please try again.');
+    const errorMessage = document.createElement('p');
+    errorMessage.classList.add('error-message');
+    errorMessage.textContent = 'An error occurred while fetching more images. Please try again.';
+    gallery.appendChild(errorMessage);
   } finally {
     toggleLoader(false);
   }
