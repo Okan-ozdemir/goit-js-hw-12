@@ -142,7 +142,7 @@ form.addEventListener('submit', async (e) => {
   
   // Set button loading state
   const originalButtonText = searchButton.textContent;
-  searchButton.innerHTML = '<span class="spinner"></span><span>Resimler Yükleniyor...</span>';
+  searchButton.innerHTML = '<span class="spinner"></span>';
   searchButton.disabled = true;
   searchButton.classList.add('loading');
 
