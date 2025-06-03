@@ -1,27 +1,34 @@
-# GoIT JavaScript Homework 12
+# Image Search App
 
-This repository contains the solution for JavaScript homework assignment #12.
+A responsive image search application built with Vite and integrated with the Pixabay API.
 
 ## Links
 
-- [GitHub Repository](https://github.com/your-username/goit-js-hw-12)
-- [Live Demo](https://your-username.github.io/goit-js-hw-12/)
+- Live Site (GitHub Pages): [https://okan-ozdemir.github.io/goit-js-hw-12/](https://okan-ozdemir.github.io/goit-js-hw-12/)
+- Repository: [https://github.com/Okan-ozdemir/goit-js-hw-12](https://github.com/Okan-ozdemir/goit-js-hw-12)
 
-## Installation
+## Features
 
-```bash
-# Clone the repository
-git clone https://github.com/your-username/goit-js-hw-12.git
+- Pixabay API integration
+- SimpleLightbox gallery
+- Infinite scroll with "Load more" button
+- Responsive design (1-5 columns)
+- Loading animations and states
+- Error handling
+- Modern UI/UX
 
-# Navigate to the project directory
-cd goit-js-hw-12
+## Technologies
 
-# Install dependencies
-npm install
+- Vite
+- Axios
+- SimpleLightbox
+- Modern JavaScript (ES6+)
+- CSS Grid/Flexbox
 
-# Start development server
-npm run dev
+## Setup
 
-# Build for production
-npm run build
-```
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Run development server: `npm run dev`
+4. Build for production: `npm run build`
+5. Deploy to GitHub Pages: `npm run deploy`
