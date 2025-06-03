@@ -139,12 +139,6 @@ form.addEventListener('submit', async (e) => {
   clearEndMessage();
   toggleLoadMoreButton(false);
   toggleLoader(true);
-  
-  // Set button loading state
-  const originalButtonText = searchButton.textContent;
-  searchButton.innerHTML = '<span class="spinner"></span>';
-  searchButton.disabled = true;
-  searchButton.classList.add('loading');
 
   try {
     const data = await searchImages(searchQuery, currentPage);
@@ -171,10 +165,6 @@ form.addEventListener('submit', async (e) => {
     gallery.innerHTML = '<p class="error-message">Görseller yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</p>';
   } finally {
     toggleLoader(false);
-    // Reset button state
-    searchButton.innerHTML = originalButtonText;
-    searchButton.disabled = false;
-    searchButton.classList.remove('loading');
   }
 });
 
