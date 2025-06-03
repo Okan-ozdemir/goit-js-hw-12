@@ -2,25 +2,25 @@ import axios from 'axios';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import './style.css';
 
-// Pixabay API yapılandırması
+// Pixabay API Configuration
 const API_KEY = '50661251-9a872d0be11f09c3db9225566';
 const BASE_URL = 'https://pixabay.com/api/';
 const PER_PAGE = 20;
 
-// DOM elementleri
+// DOM Elements
 const form = document.querySelector('.search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 const loader = document.querySelector('.loader');
 
-// Global değişkenler
+// Global Variables
 let currentPage = 1;
 let currentQuery = '';
 let totalHits = 0;
 let lightbox = null;
 let isLoading = false;
 
-// SimpleLightbox başlatma
+// Initialize SimpleLightbox
 function initializeLightbox() {
   if (lightbox) {
     lightbox.refresh();
@@ -32,9 +32,9 @@ function initializeLightbox() {
   }
 }
 
-// API'den resim arama fonksiyonu
+// Search Images from API
 async function searchImages(query, page) {
-  // Yapay gecikme ekle (1.5 saniye)
+  // Add artificial delay (1.5 seconds)
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   const params = new URLSearchParams({
@@ -51,7 +51,7 @@ async function searchImages(query, page) {
   return response.data;
 }
 
-// Galeri öğelerini oluşturma
+// Create Gallery Markup
 function createGalleryMarkup(images) {
   return images
     .map(
@@ -82,29 +82,29 @@ function createGalleryMarkup(images) {
     .join('');
 }
 
-// Yükleme durumunu yönetme
+// Toggle Loading State
 function toggleLoader(show) {
   loader.style.display = show ? 'block' : 'none';
   isLoading = show;
 }
 
-// Load More butonunu yönetme
+// Toggle Load More Button
 function toggleLoadMoreButton(show) {
   loadMoreBtn.classList.toggle('is-hidden', !show);
 }
 
-// Koleksiyon sonu mesajını gösterme
+// Show End of Collection Message
 function showEndMessage() {
   const message = document.createElement('p');
   message.classList.add('end-message');
-  message.textContent = "We're sorry, but you've reached the end of search results";
+  message.textContent = "Üzgünüz, arama sonuçlarının sonuna ulaştınız";
   message.style.textAlign = 'center';
   message.style.marginTop = '20px';
   message.style.color = '#666';
   gallery.after(message);
 }
 
-// Koleksiyon sonu mesajını temizleme
+// Clear End Message
 function clearEndMessage() {
   const existingMessage = document.querySelector('.end-message');
   if (existingMessage) {
@@ -112,7 +112,7 @@ function clearEndMessage() {
   }
 }
 
-// Düzgün kaydırma işlemi
+// Smooth Scroll Handler
 function smoothScroll() {
   const { height: cardHeight } = document
     .querySelector('.photo-card')
@@ -124,7 +124,7 @@ function smoothScroll() {
   });
 }
 
-// Form gönderme işlemi
+// Form Submit Handler
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const searchQuery = e.target.elements.searchQuery.value.trim();
@@ -132,7 +132,7 @@ form.addEventListener('submit', async (e) => {
   
   if (!searchQuery || isLoading) return;
 
-  // Yeni arama için sayfa ve galeriyi sıfırla
+  // Reset page and gallery for new search
   currentPage = 1;
   currentQuery = searchQuery;
   gallery.innerHTML = '';
@@ -140,7 +140,7 @@ form.addEventListener('submit', async (e) => {
   toggleLoadMoreButton(false);
   toggleLoader(true);
   
-  // Buton yükleme durumunu ayarla
+  // Set button loading state
   const originalButtonText = searchButton.textContent;
   searchButton.innerHTML = '<span class="spinner"></span><span>Resimler Yükleniyor...</span>';
   searchButton.disabled = true;
@@ -151,34 +151,34 @@ form.addEventListener('submit', async (e) => {
     totalHits = data.totalHits;
     
     if (data.hits.length === 0) {
-      gallery.innerHTML = '<p class="no-results">Sorry, there are no images matching your search query. Please try again.</p>';
+      gallery.innerHTML = '<p class="no-results">Üzgünüz, aramanızla eşleşen bir görsel bulunamadı. Lütfen tekrar deneyin.</p>';
       return;
     }
 
     gallery.innerHTML = createGalleryMarkup(data.hits);
     initializeLightbox();
     
-    // Toplam sayfa sayısını kontrol et
+    // Check total pages
     const totalPages = Math.ceil(totalHits / PER_PAGE);
     toggleLoadMoreButton(currentPage < totalPages);
 
-    // Eğer ilk sayfada tüm sonuçlar gösterildiyse
+    // Check if all results shown on first page
     if (data.hits.length === totalHits) {
       toggleLoadMoreButton(false);
       showEndMessage();
     }
   } catch (error) {
-    gallery.innerHTML = '<p class="error-message">An error occurred while fetching images. Please try again.</p>';
+    gallery.innerHTML = '<p class="error-message">Görseller yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</p>';
   } finally {
     toggleLoader(false);
-    // Buton durumunu sıfırla
+    // Reset button state
     searchButton.innerHTML = originalButtonText;
     searchButton.disabled = false;
     searchButton.classList.remove('loading');
   }
 });
 
-// Load More butonu tıklama işlemi
+// Load More Button Click Handler
 loadMoreBtn.addEventListener('click', async () => {
   if (isLoading) return;
   
@@ -191,7 +191,7 @@ loadMoreBtn.addEventListener('click', async () => {
     gallery.insertAdjacentHTML('beforeend', createGalleryMarkup(data.hits));
     initializeLightbox();
     
-    // Yüklenen toplam resim sayısını kontrol et
+    // Check total loaded images
     const loadedImages = currentPage * PER_PAGE;
     if (loadedImages >= totalHits) {
       toggleLoadMoreButton(false);
@@ -200,12 +200,12 @@ loadMoreBtn.addEventListener('click', async () => {
       toggleLoadMoreButton(true);
     }
 
-    // Yeni resimler yüklendikten sonra düzgün kaydırma
+    // Smooth scroll after loading new images
     smoothScroll();
   } catch (error) {
     const errorMessage = document.createElement('p');
     errorMessage.classList.add('error-message');
-    errorMessage.textContent = 'An error occurred while fetching more images. Please try again.';
+    errorMessage.textContent = 'Daha fazla görsel yüklenirken bir hata oluştu. Lütfen tekrar deneyin.';
     gallery.appendChild(errorMessage);
   } finally {
     toggleLoader(false);
